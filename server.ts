@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(
   cors({
-    origin: "http://localhost:3001",
+    origin: process.env.FRONTEND_URL || "http://localhost:3001",
     credentials: true,
   })
 );
@@ -23,9 +23,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Serve static files from the React app build directory
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
 app.use("/api/v1", routes);
 
 app.get("/health", (req: Request, res: Response) => {
@@ -33,11 +30,6 @@ app.get("/health", (req: Request, res: Response) => {
     status: 200,
     data: [{ message: "iReporter API is running successfully" }],
   });
-});
-
-// Catch all handler: send back React's index.html file for any non-API routes
-app.get("*", (req: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
 });
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
