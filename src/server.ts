@@ -3,8 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 
-import routes from "./routes/routes";
-import notificationController from "./Controllers/notificationController";
+import routes from "../routes/routes";
+import notificationController from "../Controllers/notificationController";
 
 dotenv.config();
 
@@ -21,7 +21,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.use("/api/v1", routes);
 
