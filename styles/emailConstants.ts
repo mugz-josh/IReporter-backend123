@@ -1,0 +1,55 @@
+// styles/emailConstants.ts
+export const emailConstants = {
+  colors: {
+    primary: "#2c3e50",
+    secondary: "#3498db",
+    accent: "#1abc9c",
+    success: "#27ae60",
+    warning: "#f39c12",
+    danger: "#e74c3c",
+    light: "#f8f9fa",
+    dark: "#2c3e50",
+    gray: "#95a5a6",
+    lightGray: "#ecf0f1",
+    white: "#ffffff",
+    background: "#f5f7fa",
+  },
+  fonts: {
+    primary:
+      "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    mono: "'SF Mono', 'Roboto Mono', Consolas, monospace",
+  },
+  spacing: {
+    xs: "8px",
+    sm: "12px",
+    md: "16px",
+    lg: "24px",
+    xl: "32px",
+    xxl: "48px",
+  },
+  breakpoints: {
+    mobile: "600px",
+    tablet: "768px",
+  },
+  shadows: {
+    sm: "0 2px 4px rgba(0,0,0,0.05)",
+    md: "0 4px 12px rgba(0,0,0,0.08)",
+    lg: "0 8px 24px rgba(0,0,0,0.12)",
+  },
+  urls: {
+    logo: "https://cdn.vectorstock.com/i/1000v/80/63/reporter-mascot-logo-design-vector-45838063.jpg",
+    supportEmail: "support@ireporter.com",
+    helpCenter: "https://ireporter.com/help",
+    privacyPolicy: "https://ireporter.com/privacy",
+    terms: "https://ireporter.com/terms",
+    reports: "https://ireporter.com/reports",
+    dashboard: "https://ireporter.com/dashboard",
+    contact: "https://ireporter.com/contact",
+    adminPanel: "https://ireporter.com/admin",
+    userProfile: "https://ireporter.com/admin/users",
+    auditLogs: "https://ireporter.com/admin/audit-logs",
+    reportDetails: "https://ireporter.com/admin/reports",
+    analytics: "https://ireporter.com/admin/analytics",
+    settings: "https://ireporter.com/admin/settings",
+  },
+};
