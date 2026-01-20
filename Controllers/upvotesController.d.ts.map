@@ -1,0 +1,1 @@
+{"version":3,"file":"upvotesController.d.ts","sourceRoot":"","sources":["upvotesController.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAEnC,OAAO,EAAE,WAAW,EAAE,MAAM,UAAU,CAAC;AAIvC,eAAO,MAAM,iBAAiB;sBAEJ,WAAW,OAAO,QAAQ,KAAG,OAAO,CAAC,IAAI,CAAC;wBAkCxC,WAAW,OAAO,QAAQ,KAAG,OAAO,CAAC,IAAI,CAAC;CA0DrE,CAAC;AAEF,eAAe,iBAAiB,CAAC"}

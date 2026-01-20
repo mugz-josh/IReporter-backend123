@@ -1,0 +1,13 @@
+export declare const getPriorityLevel: (status: string) => string;
+export declare const getPriorityClass: (status: string) => string;
+export declare const getStatusEmoji: (status: string) => string;
+export declare const getStatusIcon: (status: string) => string;
+export declare const generateReportId: () => string;
+export declare const generateUserId: () => string;
+export declare const generateChangeId: () => string;
+export declare const generateTrackingId: () => string;
+export declare const generateNotificationId: () => string;
+export declare const getUserSubject: (reportType: string) => string;
+export declare const getAdminSubject: (reportType: string) => string;
+export declare const getLucideIcon: (iconName: string) => string;
+//# sourceMappingURL=emailHelper.d.ts.map
