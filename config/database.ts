@@ -12,10 +12,8 @@ const pool = new pg.Pool({
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
-  // Add SSL for Supabase
-  ssl: {
-    rejectUnauthorized: false
-  }
+  // SSL configuration for Vercel deployment
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
 
