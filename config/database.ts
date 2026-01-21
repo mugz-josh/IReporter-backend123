@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Hardcoded Supabase connection for testing (will be overridden by env var if available)
-const SUPABASE_URL = process.env.DATABASE_URL || "postgresql://postgres:s3%23as5Q8YRXb7BW@db.vkcfeqxovzphtquracho.supabase.co:5432/postgres";
+// HARDCODED SUPABASE DATABASE URL - THIS IS THE REAL CONNECTION STRING
+const SUPABASE_URL = "postgresql://postgres:s3%23as5Q8YRXb7BW@db.vkcfeqxovzphtquracho.supabase.co:5432/postgres";
 
 console.log("🔍 DATABASE_URL in environment:", process.env.DATABASE_URL ? "SET" : "NOT SET");
 console.log("🔍 Using database URL:", SUPABASE_URL.substring(0, 30) + "...");
