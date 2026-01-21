@@ -28,7 +28,7 @@ function formatUser(userData: any): Omit<User, "password"> {
   };
 }
 function generateToken(payload: object): string {
-  const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-key-for-development";
+  const JWT_SECRET = process.env.JWT_SECRET || "iReporterSecureJWTKey2024!@#$%^&*()_+-=[]{}|;:,.<>?~`RandomStringForProduction";
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
 }
 export const authController = {

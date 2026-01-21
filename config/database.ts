@@ -3,17 +3,20 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// Hardcoded Supabase connection for testing (will be overridden by env var if available)
+const SUPABASE_URL = process.env.DATABASE_URL || "postgresql://postgres:s3%23as5Q8YRXb7BW@db.vkcfeqxovzphtquracho.supabase.co:5432/postgres";
+
 console.log("🔍 DATABASE_URL in environment:", process.env.DATABASE_URL ? "SET" : "NOT SET");
-console.log("🔍 DATABASE_URL value (first 20 chars):", process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 20) + "..." : "undefined");
+console.log("🔍 Using database URL:", SUPABASE_URL.substring(0, 30) + "...");
 
 // For Supabase, use the connection string
 const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: SUPABASE_URL,
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
   // SSL configuration for Vercel deployment
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl: { rejectUnauthorized: false }
 });
 
 
