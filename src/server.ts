@@ -13,7 +13,11 @@ const PORT = process.env.PORT || 3000;
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "https://i-reporter-frontend123.vercel.app/",
+    origin: [
+      process.env.FRONTEND_URL || "http://localhost:3001",
+      "https://i-reporter-frontend123.vercel.app",
+      "https://i-reporter-frontend123.vercel.app/"
+    ],
     credentials: true,
   })
 );
