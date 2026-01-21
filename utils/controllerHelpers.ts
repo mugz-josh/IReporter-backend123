@@ -32,13 +32,16 @@ export function sendSuccess(
 export function processMediaFiles(files: Express.Multer.File[]): {
   images: string[];
   videos: string[];
+  audio: string[];
 } {
   const imageFiles = files.filter((file) => file.mimetype.startsWith("image/"));
   const videoFiles = files.filter((file) => file.mimetype.startsWith("video/"));
+  const audioFiles = files.filter((file) => file.mimetype.startsWith("audio/"));
 
   return {
     images: imageFiles.map((file) => file.filename),
     videos: videoFiles.map((file) => file.filename),
+    audio: audioFiles.map((file) => file.filename),
   };
 }
 
@@ -47,6 +50,7 @@ export function parseMedia(data: any[]): any[] {
     ...item,
     images: item.images ? JSON.parse(item.images) : [],
     videos: item.videos ? JSON.parse(item.videos) : [],
+    audio: item.audio ? JSON.parse(item.audio) : [],
   }));
 }
 

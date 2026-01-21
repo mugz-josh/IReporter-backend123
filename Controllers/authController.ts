@@ -44,32 +44,32 @@ export const authController = {
         );
       }
 
-      const [existingUsers]: any = await pool.execute(
-        "SELECT id FROM users WHERE email = ?",
+      const existingUsers = await pool.query(
+        "SELECT id FROM users WHERE email = $1",
         [email]
       );
 
-      if (existingUsers.length > 0) {
+      if (existingUsers.rows.length > 0) {
         return sendError(res, 400, "User already exists with this email");
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const [result]: any = await pool.execute(
-        "INSERT INTO users (first_name, last_name, email, password, phone) VALUES (?, ?, ?, ?, ?)",
+      const result = await pool.query(
+        "INSERT INTO users (first_name, last_name, email, password, phone) VALUES ($1, $2, $3, $4, $5) RETURNING id",
         [first_name, last_name, email, hashedPassword, phone || null]
       );
 
-      const [userResults]: any = await pool.execute(
-        "SELECT id, first_name, last_name, email, phone, is_admin, created_at, updated_at FROM users WHERE id = ?",
-        [result.insertId]
+      const userResults = await pool.query(
+        "SELECT id, first_name, last_name, email, phone, is_admin, created_at, updated_at FROM users WHERE id = $1",
+        [result.rows[0].id]
       );
 
-      if (userResults.length === 0) {
+      if (userResults.rows.length === 0) {
         return sendError(res, 500, "Failed to retrieve user after creation");
       }
 
-      const user = formatUser(userResults[0]);
+      const user = formatUser(userResults.rows[0]);
 
       const token = generateToken({ id: user.id, email: user.email });
 
@@ -90,18 +90,18 @@ export const authController = {
         return sendError(res, 400, "Email and password are required");
       }
 
-      const [results]: any = await pool.execute(
-        "SELECT * FROM users WHERE email = ?",
+      const results = await pool.query(
+        "SELECT * FROM users WHERE email = $1",
         [email]
       );
-      console.log("Query results length:", results.length);
+      console.log("Query results length:", results.rows.length);
 
-      if (results.length === 0) {
+      if (results.rows.length === 0) {
         console.log("User not found for email:", email);
         return sendError(res, 400, "Invalid email or password");
       }
 
-      const userData = results[0];
+      const userData = results.rows[0];
       console.log("User found:", userData.email, "Password hash:", userData.password.substring(0, 20) + "...");
       const isPasswordValid = await bcrypt.compare(password, userData.password);
       console.log("Password valid:", isPasswordValid);
@@ -137,16 +137,16 @@ export const authController = {
         );
       }
 
-      const [results]: any = await pool.execute(
-        "SELECT id, first_name, last_name, email, phone, is_admin, profile_picture, created_at, updated_at FROM users WHERE id = ?",
+      const results = await pool.query(
+        "SELECT id, first_name, last_name, email, phone, is_admin, profile_picture, created_at, updated_at FROM users WHERE id = $1",
         [userId]
       );
 
-      if (results.length === 0) {
+      if (results.rows.length === 0) {
         return sendError(res, 404, "User not found");
       }
 
-      const user = formatUser(results[0]);
+      const user = formatUser(results.rows[0]);
       sendSuccess(res, 200, user);
     } catch (error) {
       sendError(res, 500, "Server error while fetching profile", error);
@@ -185,11 +185,11 @@ export const authController = {
         );
       }
       if (email) {
-        const [existingUsers]: any = await pool.execute(
-          "SELECT id FROM users WHERE email = ? AND id != ?",
+        const existingUsers = await pool.query(
+          "SELECT id FROM users WHERE email = $1 AND id != $2",
           [email, userId]
         );
-        if (existingUsers.length > 0) {
+        if (existingUsers.rows.length > 0) {
           return sendError(res, 400, "Email is already in use by another user");
         }
       }
@@ -198,40 +198,40 @@ export const authController = {
       const values: any[] = [];
 
       if (first_name) {
-        updates.push("first_name = ?");
+        updates.push("first_name = $1");
         values.push(first_name);
       }
       if (last_name) {
-        updates.push("last_name = ?");
+        updates.push("last_name = $2");
         values.push(last_name);
       }
       if (email) {
-        updates.push("email = ?");
+        updates.push("email = $3");
         values.push(email);
       }
       if (phone !== undefined) {
-        updates.push("phone = ?");
+        updates.push("phone = $4");
         values.push(phone || null);
       }
 
       updates.push("updated_at = NOW()");
       values.push(userId);
 
-      const query = `UPDATE users SET ${updates.join(", ")} WHERE id = ?`;
+      const query = `UPDATE users SET ${updates.join(", ")} WHERE id = $${values.length}`;
 
-      await pool.execute(query, values);
+      await pool.query(query, values);
 
       
-      const [results]: any = await pool.execute(
-        "SELECT id, first_name, last_name, email, phone, is_admin, profile_picture, created_at, updated_at FROM users WHERE id = ?",
+      const results = await pool.query(
+        "SELECT id, first_name, last_name, email, phone, is_admin, profile_picture, created_at, updated_at FROM users WHERE id = $1",
         [userId]
       );
 
-      if (results.length === 0) {
+      if (results.rows.length === 0) {
         return sendError(res, 404, "User not found after update");
       }
 
-    const user = formatUser(results[0]);
+    const user = formatUser(results.rows[0]);
       sendSuccess(res, 200, user);
     } catch (error) {
       sendError(res, 500, "Server error while updating profile", error);
@@ -251,8 +251,8 @@ export const authController = {
 
       const filePath = `/uploads/${req.file.filename}`;
 
-      await pool.execute(
-        "UPDATE users SET profile_picture = ?, updated_at = NOW() WHERE id = ?",
+      await pool.query(
+        "UPDATE users SET profile_picture = $1, updated_at = NOW() WHERE id = $2",
         [filePath, userId]
       );
 
@@ -275,20 +275,20 @@ export const authController = {
         );
       }
 
-    const [userResults]: any = await pool.execute(
-        "SELECT is_admin FROM users WHERE id = ?",
+    const userResults = await pool.query(
+        "SELECT is_admin FROM users WHERE id = $1",
         [userId]
       );
 
-      if (userResults.length === 0 || !userResults[0].is_admin) {
+      if (userResults.rows.length === 0 || !userResults.rows[0].is_admin) {
         return sendError(res, 403, "Admin access required");
       }
 
-    const [results]: any = await pool.execute(
+    const results = await pool.query(
         "SELECT id, first_name, last_name, email, phone, is_admin, profile_picture, created_at, updated_at FROM users ORDER BY created_at DESC"
       );
 
-   const users = results.map(formatUser);
+   const users = results.rows.map(formatUser);
       sendSuccess(res, 200, users);
     } catch (error) {
       sendError(res, 500, "Server error while fetching users", error);

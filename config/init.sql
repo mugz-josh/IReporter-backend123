@@ -1,9 +1,6 @@
--- Create database
-CREATE DATABASE IF NOT EXISTS ireporter;
-USE ireporter;
 -- Users table
 CREATE TABLE users(
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -12,38 +9,38 @@ CREATE TABLE users(
     is_admin BOOLEAN DEFAULT FALSE,
     profile_picture VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 -- Red-flags table with direct image/video/audio storage
 CREATE TABLE red_flags (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     latitude DECIMAL(10, 8) NOT NULL,
     longitude DECIMAL(11, 8) NOT NULL,
-    status ENUM('draft', 'under-investigation', 'rejected', 'resolved') DEFAULT 'draft',
+    status VARCHAR(50) DEFAULT 'draft' CHECK (status IN ('draft', 'under-investigation', 'rejected', 'resolved')),
     images JSON, -- Store array of image file paths
     videos JSON, -- Store array of video file paths
     audio JSON, -- Store array of audio file paths
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 -- Interventions table with direct image/video/audio storage
 CREATE TABLE interventions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     latitude DECIMAL(10, 8) NOT NULL,
     longitude DECIMAL(11, 8) NOT NULL,
-    status ENUM('draft', 'under-investigation', 'rejected', 'resolved') DEFAULT 'draft',
+    status VARCHAR(50) DEFAULT 'draft' CHECK (status IN ('draft', 'under-investigation', 'rejected', 'resolved')),
     images JSON, -- Store array of image file paths
     videos JSON, -- Store array of video file paths
     audio JSON, -- Store array of audio file paths
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 -- Create indexes for better performance
@@ -58,7 +55,7 @@ VALUES ('Admin', 'User', 'Mollyadmin@ireporter.com', '$2b$10$92IXUNpkjO0rOQ5byMi
 
 -- Notifications table
 CREATE TABLE IF NOT EXISTS notifications (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
@@ -72,37 +69,37 @@ CREATE TABLE IF NOT EXISTS notifications (
 
 -- Comments table for community interaction
 CREATE TABLE IF NOT EXISTS comments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
-    report_type ENUM('red_flag', 'intervention') NOT NULL,
+    report_type VARCHAR(50) NOT NULL CHECK (report_type IN ('red_flag', 'intervention')),
     report_id INT NOT NULL,
     comment_text TEXT NOT NULL,
-    comment_type ENUM('user', 'admin', 'official') DEFAULT 'user',
+    comment_type VARCHAR(50) DEFAULT 'user' CHECK (comment_type IN ('user', 'admin', 'official')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Upvotes table for liking reports
 CREATE TABLE IF NOT EXISTS upvotes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
-    report_type ENUM('red_flag', 'intervention') NOT NULL,
+    report_type VARCHAR(50) NOT NULL CHECK (report_type IN ('red_flag', 'intervention')),
     report_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_upvote (user_id, report_type, report_id)
+    UNIQUE (user_id, report_type, report_id)
 );
 
 -- Follows table for following reports
 CREATE TABLE IF NOT EXISTS follows (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
-    report_type ENUM('red_flag', 'intervention') NOT NULL,
+    report_type VARCHAR(50) NOT NULL CHECK (report_type IN ('red_flag', 'intervention')),
     report_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_follow (user_id, report_type, report_id)
+    UNIQUE (user_id, report_type, report_id)
 );
 
 -- Create indexes for better performance

@@ -22,6 +22,7 @@ export interface RedFlagDB extends RowDataPacket {
     status: "draft" | "under-investigation" | "rejected" | "resolved";
     images: string | null;
     videos: string | null;
+    audio: string | null;
     created_at: Date;
     updated_at: Date;
 }
@@ -35,6 +36,7 @@ export interface RedFlag {
     status: "draft" | "under-investigation" | "rejected" | "resolved";
     images: string[];
     videos: string[];
+    audio: string[];
     created_at: Date;
     updated_at: Date;
 }
@@ -68,6 +70,7 @@ export interface RedFlagWithUser extends RedFlagDB {
     first_name: string;
     last_name: string;
     email: string;
+    audio: string | null;
 }
 export interface InterventionWithUser extends InterventionDB {
     first_name: string;
