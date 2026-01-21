@@ -1,5 +1,4 @@
 import { Request } from "express";
-import { RowDataPacket } from "mysql2";
 export interface User {
     id: number;
     first_name: string;
@@ -12,7 +11,7 @@ export interface User {
     created_at: Date;
     updated_at: Date;
 }
-export interface RedFlagDB extends RowDataPacket {
+export interface RedFlagDB {
     id: number;
     user_id: number;
     title: string;
@@ -40,7 +39,7 @@ export interface RedFlag {
     created_at: Date;
     updated_at: Date;
 }
-export interface InterventionDB extends RowDataPacket {
+export interface InterventionDB {
     id: number;
     user_id: number;
     title: string;
@@ -66,13 +65,13 @@ export interface Intervention {
     created_at: Date;
     updated_at: Date;
 }
-export interface RedFlagWithUser extends RedFlagDB {
+export interface RedFlagWithUser extends Omit<RedFlagDB, 'images' | 'videos' | 'audio'> {
     first_name: string;
     last_name: string;
     email: string;
     audio: string | null;
 }
-export interface InterventionWithUser extends InterventionDB {
+export interface InterventionWithUser extends Omit<InterventionDB, 'images' | 'videos'> {
     first_name: string;
     last_name: string;
     email: string;
