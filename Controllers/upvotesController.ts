@@ -1,7 +1,6 @@
 import { Response } from "express";
 import pool from "../config/database";
 import { AuthRequest } from "../types";
-import { ResultSetHeader } from "mysql2";
 import { sendError, sendSuccess } from "../utils/controllerHelpers";
 
 export const upvotesController = {
@@ -62,10 +61,10 @@ export const upvotesController = {
 
       // Verify the report exists
       const reportTable = reportType === 'red_flag' ? 'red_flags' : 'interventions';
-      const checkQuery = `SELECT id FROM ${reportTable} WHERE id = ?`;
-      const [checkResults] = await pool.execute(checkQuery, [reportId]);
+      const checkQuery = `SELECT id FROM ${reportTable} WHERE id = $1`;
+      const checkResults = await pool.query(checkQuery, [reportId]);
 
-      if ((checkResults as any[]).length === 0) {
+      if (checkResults.rows.length === 0) {
         sendError(res, 404, "Report not found");
         return;
       }
@@ -73,23 +72,23 @@ export const upvotesController = {
       // Check if upvote already exists
       const checkUpvoteQuery = `
         SELECT id FROM upvotes
-        WHERE user_id = ? AND report_type = ? AND report_id = ?
+        WHERE user_id = $1 AND report_type = $2 AND report_id = $3
       `;
-      const [upvoteResults] = await pool.execute(checkUpvoteQuery, [userId, reportType, reportId]);
+      const upvoteResults = await pool.query(checkUpvoteQuery, [userId, reportType, reportId]);
 
       let message = "";
-      if ((upvoteResults as any[]).length > 0) {
+      if (upvoteResults.rows.length > 0) {
         // Remove upvote
-        const deleteQuery = "DELETE FROM upvotes WHERE user_id = ? AND report_type = ? AND report_id = ?";
-        await pool.execute(deleteQuery, [userId, reportType, reportId]);
+        const deleteQuery = "DELETE FROM upvotes WHERE user_id = $1 AND report_type = $2 AND report_id = $3";
+        await pool.query(deleteQuery, [userId, reportType, reportId]);
         message = "Upvote removed";
       } else {
         // Add upvote
         const insertQuery = `
           INSERT INTO upvotes (user_id, report_type, report_id)
-          VALUES (?, ?, ?)
+          VALUES ($1, $2, $3)
         `;
-        await pool.execute<ResultSetHeader>(insertQuery, [userId, reportType, reportId]);
+        await pool.query(insertQuery, [userId, reportType, reportId]);
         message = "Upvote added";
       }
 

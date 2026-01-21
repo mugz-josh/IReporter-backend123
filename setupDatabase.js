@@ -2,17 +2,16 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
+// Load environment variables
+require('dotenv').config();
+
 async function setupDatabase() {
   let pool;
 
   try {
-    // Connect to PostgreSQL (Supabase)
+    // Connect to PostgreSQL (Supabase) using DATABASE_URL
     pool = new Pool({
-      host: process.env.DB_HOST || 'localhost',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || '',
-      database: process.env.DB_NAME || 'postgres',
-      port: process.env.DB_PORT || 5432
+      connectionString: process.env.DATABASE_URL,
     });
 
     console.log('✅ Connected to PostgreSQL server');

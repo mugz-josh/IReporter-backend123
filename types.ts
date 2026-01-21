@@ -1,5 +1,4 @@
 import express, { Request } from "express";
-import { RowDataPacket } from "mysql2";
 
 export interface User {
   id: number;
@@ -15,7 +14,7 @@ export interface User {
 }
 
 // Database interfaces (matches your actual schema)
-export interface RedFlagDB extends RowDataPacket {
+export interface RedFlagDB {
   id: number;
   user_id: number;
   title: string;

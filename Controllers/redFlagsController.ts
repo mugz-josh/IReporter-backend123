@@ -8,7 +8,7 @@ import {
   UpdateStatusData,
   RedFlagWithUser,
 } from "../types";
-import { ResultSetHeader } from "mysql2";
+
 import EmailService from "../services/emailService";
 import {
   sendError,

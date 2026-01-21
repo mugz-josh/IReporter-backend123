@@ -8,7 +8,7 @@ import {
   UpdateStatusData,
   InterventionWithUser,
 } from "../types";
-import { ResultSetHeader } from "mysql2";
+
 import EmailService from "../services/emailService";
 import {
   sendError,
@@ -33,26 +33,25 @@ export const interventionsController = {
     
       const query = isAdmin
         ? `
-          SELECT i.*, u.first_name, u.last_name, u.email 
-          FROM interventions i 
-          JOIN users u ON i.user_id = u.id 
+          SELECT i.*, u.first_name, u.last_name, u.email
+          FROM interventions i
+          JOIN users u ON i.user_id = u.id
           ORDER BY i.created_at DESC
         `
         : `
-          SELECT i.*, u.first_name, u.last_name, u.email 
-          FROM interventions i 
-          JOIN users u ON i.user_id = u.id 
-          WHERE i.user_id = ?
+          SELECT i.*, u.first_name, u.last_name, u.email
+          FROM interventions i
+          JOIN users u ON i.user_id = u.id
+          WHERE i.user_id = $1
           ORDER BY i.created_at DESC
         `;
 
-      const [results] = await pool.execute<InterventionWithUser[]>(
+      const results = await pool.query<InterventionWithUser[]>(
         query,
         isAdmin ? [] : [userId]
       );
 
-      
-      const interventionsWithParsedMedia = parseMedia(results);
+      const interventionsWithParsedMedia = parseMedia(results.rows);
 
       sendSuccess(res, 200, interventionsWithParsedMedia);
     } catch (err) {

@@ -3,12 +3,9 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// For Supabase, use the connection string
 const pool = new pg.Pool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'ireporter',
-  port: parseInt(process.env.DB_PORT || '5432'),
+  connectionString: process.env.DATABASE_URL,
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
@@ -17,11 +14,11 @@ const pool = new pg.Pool({
 
 const testConnection = async () => {
   try {
-    const connection = await pool.getConnection();
-    console.log("✅ Connected to MySQL database via connection pool");
-    connection.release();
+    const client = await pool.connect();
+    console.log("✅ Connected to PostgreSQL database via connection pool");
+    client.release();
   } catch (err) {
-    console.error("❌ Error connecting to MySQL database:", err);
+    console.error("❌ Error connecting to PostgreSQL database:", err);
   }
 };
 
