@@ -58,17 +58,58 @@ app.get("/health", (req: Request, res: Response) => {
   });
 });
 
-// Optional: test Supabase connection (proof your DB works)
-app.get("/test-supabase", async (req: Request, res: Response) => {
+// Database connection test endpoint
+app.get("/test-db", async (req: Request, res: Response) => {
   try {
-    const { supabase } = await import("./lib/supabase"); // your supabase client
-    const { data, error } = await supabase.from("users").select("*");
-    if (error) throw error;
-    res.status(200).json({ data });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    const { Pool } = await import("pg");
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+    });
+
+    const client = await pool.connect();
+    console.log("✅ Database connection successful");
+    client.release();
+    await pool.end();
+
+    res.status(200).json({
+      status: 200,
+      message: "Database connection successful",
+      env: {
+        DATABASE_URL: process.env.DATABASE_URL ? "SET" : "NOT SET",
+        JWT_SECRET: process.env.JWT_SECRET ? "SET" : "NOT SET",
+        NODE_ENV: process.env.NODE_ENV,
+      }
+    });
+  } catch (error: any) {
+    console.error("❌ Database connection failed:", error);
+    res.status(500).json({
+      status: 500,
+      error: "Database connection failed",
+      details: error.message,
+      env: {
+        DATABASE_URL: process.env.DATABASE_URL ? "SET" : "NOT SET",
+        JWT_SECRET: process.env.JWT_SECRET ? "SET" : "NOT SET",
+        NODE_ENV: process.env.NODE_ENV,
+      }
+    });
   }
 });
+
+// Optional: test Supabase connection (proof your DB works)
+// Note: This endpoint requires a supabase client setup
+// app.get("/test-supabase", async (req: Request, res: Response) => {
+//   try {
+//     const { supabase } = await import("./lib/supabase"); // your supabase client
+//     const { data, error } = await supabase.from("users").select("*");
+//     if (error) throw error;
+//     res.status(200).json({ data });
+//   } catch (err: any) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
 // ---------------------------
 // ERROR HANDLING

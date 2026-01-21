@@ -34,9 +34,14 @@ function generateToken(payload: object): string {
 export const authController = {
   signup: async (req: Request, res: Response): Promise<void> => {
     try {
+      console.log("🔍 Signup attempt - Request body:", req.body);
+      console.log("🔍 Environment check - DATABASE_URL:", process.env.DATABASE_URL ? "SET" : "NOT SET");
+      console.log("🔍 Environment check - JWT_SECRET:", process.env.JWT_SECRET ? "SET" : "NOT SET");
+
       const { first_name, last_name, email, password, phone }: SignupData =
         req.body;
       if (!first_name || !last_name || !email || !password) {
+        console.log("❌ Validation failed - missing required fields");
         return sendError(
           res,
           400,
@@ -44,38 +49,53 @@ export const authController = {
         );
       }
 
+      console.log("🔍 Checking for existing user with email:", email);
       const existingUsers = await pool.query(
         "SELECT id FROM users WHERE email = $1",
         [email]
       );
+      console.log("🔍 Existing users query result:", existingUsers.rows.length);
 
       if (existingUsers.rows.length > 0) {
+        console.log("❌ User already exists with email:", email);
         return sendError(res, 400, "User already exists with this email");
       }
 
+      console.log("🔍 Hashing password");
       const hashedPassword = await bcrypt.hash(password, 10);
 
+      console.log("🔍 Inserting new user");
       const result = await pool.query(
         "INSERT INTO users (first_name, last_name, email, password, phone) VALUES ($1, $2, $3, $4, $5) RETURNING id",
         [first_name, last_name, email, hashedPassword, phone || null]
       );
+      console.log("🔍 Insert result:", result.rows);
 
+      const userId = result.rows[0].id;
+      console.log("🔍 Retrieving created user with ID:", userId);
       const userResults = await pool.query(
         "SELECT id, first_name, last_name, email, phone, is_admin, created_at, updated_at FROM users WHERE id = $1",
-        [result.rows[0].id]
+        [userId]
       );
+      console.log("🔍 User retrieval result:", userResults.rows.length);
 
       if (userResults.rows.length === 0) {
+        console.log("❌ Failed to retrieve user after creation");
         return sendError(res, 500, "Failed to retrieve user after creation");
       }
 
       const user = formatUser(userResults.rows[0]);
+      console.log("🔍 Generating token for user:", user.email);
 
       const token = generateToken({ id: user.id, email: user.email });
 
       const authResponse: AuthResponse = { token, user };
+      console.log("✅ Signup successful for user:", user.email);
       sendSuccess(res, 201, authResponse);
-    } catch (error) {
+    } catch (error: any) {
+      console.error("❌ Signup error:", error);
+      console.error("❌ Error stack:", error.stack);
+      console.error("❌ Error message:", error.message);
       sendError(res, 500, "Server error during signup", error);
     }
   },
