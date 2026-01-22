@@ -32,6 +32,9 @@ const testConnection = async () => {
   }
 };
 
-testConnection();
+// Only run connection test in development, not in serverless environment
+if (process.env.NODE_ENV !== 'production') {
+  testConnection();
+}
 
 export default pool;
