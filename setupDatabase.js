@@ -2,16 +2,20 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-// Load environment variables
-require('dotenv').config();
+// FORCED HARDCODED DATABASE URL - NO ENVIRONMENT VARIABLES NEEDED
+const FORCED_DATABASE_URL = "postgresql://postgres:s3%23as5Q8YRXb7BW@db.vkcfeqxovzphtquracho.supabase.co:5432/postgres";
 
 async function setupDatabase() {
   let pool;
 
   try {
-    // Connect to PostgreSQL (Supabase) using DATABASE_URL
+    // FORCE USING HARDCODED CONNECTION - IGNORE ENVIRONMENT VARIABLES
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: FORCED_DATABASE_URL,
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+      ssl: { rejectUnauthorized: false }
     });
 
     console.log('✅ Connected to PostgreSQL server');

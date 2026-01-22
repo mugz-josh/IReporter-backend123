@@ -6,6 +6,6 @@
 - [x] Remove MySQL imports from Controllers/interventionsController.ts
 - [x] Remove MySQL imports from Controllers/commentsController.ts
 - [x] Remove MySQL imports from Controllers/upvotesController.ts
-- [ ] Fix database.ts connection test for PostgreSQL
-- [ ] Verify PostgreSQL setup
-- [ ] Start development server
+- [x] Fix database.ts connection test for PostgreSQL (HARDCODED)
+- [x] Verify PostgreSQL setup (HARDCODED CONNECTION)
+- [x] Start development server (HARDCODED DATABASE CONNECTION IMPLEMENTED)

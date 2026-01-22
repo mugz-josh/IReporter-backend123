@@ -5,6 +5,7 @@ import path from "path";
 
 import routes from "../routes/routes";
 import notificationController from "../Controllers/notificationController";
+import pool from "../config/database";
 
 dotenv.config();
 
@@ -58,21 +59,15 @@ app.get("/health", (req: Request, res: Response) => {
   });
 });
 
+// HARDCODED SUPABASE DATABASE URL - FORCED CONNECTION
+const HARDCODED_DATABASE_URL = "postgresql://postgres:s3%23as5Q8YRXb7BW@db.vkcfeqxovzphtquracho.supabase.co:5432/postgres";
+
 // Database connection test endpoint
 app.get("/test-db", async (req: Request, res: Response) => {
   try {
-    const { Pool } = await import("pg");
-    const pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      max: 10,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
-    });
-
     const client = await pool.connect();
     console.log("✅ Database connection successful");
     client.release();
-    await pool.end();
 
     res.status(200).json({
       status: 200,

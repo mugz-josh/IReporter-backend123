@@ -59,10 +59,7 @@ export const redFlagsController = {
       const { id } = req.params;
 
       if (!id) {
-        res.status(400).json({
-          status: 400,
-          error: "ID parameter is required",
-        });
+        sendError(res, 400, "ID parameter is required");
         return;
       }
 
@@ -76,10 +73,7 @@ export const redFlagsController = {
       const results = await pool.query<RedFlagWithUser[]>(query, [id]);
 
       if (results.rows.length === 0) {
-        res.status(404).json({
-          status: 404,
-          error: "Red-flag record not found",
-        });
+        sendError(res, 404, "Red-flag record not found");
         return;
       }
 
@@ -92,16 +86,10 @@ export const redFlagsController = {
         audio: redFlag?.audio ? JSON.parse(redFlag.audio) : [],
       };
 
-      res.status(200).json({
-        status: 200,
-        data: [redFlagWithParsedMedia],
-      });
+      sendSuccess(res, 200, [redFlagWithParsedMedia]);
     } catch (err) {
       console.error("Database error:", err);
-      res.status(500).json({
-        status: 500,
-        error: "Database error",
-      });
+      sendError(res, 500, "Database error", err);
     }
   },
 
@@ -172,18 +160,12 @@ export const redFlagsController = {
       const files = req.files as Express.Multer.File[];
 
       if (!id) {
-        res.status(400).json({
-          status: 400,
-          error: "ID parameter is required",
-        });
+        sendError(res, 400, "ID parameter is required");
         return;
       }
 
       if (!files || files.length === 0) {
-        res.status(400).json({
-          status: 400,
-          error: "No files uploaded",
-        });
+        sendError(res, 400, "No files uploaded");
         return;
       }
 
@@ -194,29 +176,19 @@ export const redFlagsController = {
       ]);
 
       if (checkResults.rows.length === 0) {
-        res.status(404).json({
-          status: 404,
-          error: "Red-flag record not found",
-        });
+        sendError(res, 404, "Red-flag record not found");
         return;
       }
 
       const redFlag = checkResults.rows[0] as any;
 
       if (redFlag?.user_id !== req.user?.id && !req.user?.isAdmin) {
-        res.status(403).json({
-          status: 403,
-          error: "Access denied. You can only modify your own records.",
-        });
+        sendError(res, 403, "Access denied. You can only modify your own records.");
         return;
       }
 
       if (redFlag?.status !== "draft") {
-        res.status(403).json({
-          status: 403,
-          error:
-            "Cannot modify record that is under investigation, rejected, or resolved",
-        });
+        sendError(res, 403, "Cannot modify record that is under investigation, rejected, or resolved");
         return;
       }
 
@@ -251,21 +223,15 @@ export const redFlagsController = {
         id,
       ]);
 
-      res.status(200).json({
-        status: 200,
-        data: [
-          {
-            id: parseInt(id),
-            message: `Added ${newImages.length} images, ${newVideos.length} videos, and ${newAudio.length} audio files to red-flag record`,
-          },
-        ],
-      });
+      sendSuccess(res, 200, [
+        {
+          id: parseInt(id),
+          message: `Added ${newImages.length} images, ${newVideos.length} videos, and ${newAudio.length} audio files to red-flag record`,
+        },
+      ]);
     } catch (error) {
       console.error("Error adding media:", error);
-      res.status(500).json({
-        status: 500,
-        error: "Server error during media upload",
-      });
+      sendError(res, 500, "Server error during media upload", error);
     }
   },
 
@@ -275,10 +241,7 @@ export const redFlagsController = {
       const { latitude, longitude }: UpdateLocationData = req.body;
 
       if (!id) {
-        res.status(400).json({
-          status: 400,
-          error: "ID parameter is required",
-        });
+        sendError(res, 400, "ID parameter is required");
         return;
       }
 
@@ -288,29 +251,19 @@ export const redFlagsController = {
       ]);
 
       if (checkResults.rows.length === 0) {
-        res.status(404).json({
-          status: 404,
-          error: "Red-flag record not found",
-        });
+        sendError(res, 404, "Red-flag record not found");
         return;
       }
 
       const record = checkResults.rows[0] as any;
 
       if (record?.user_id !== req.user?.id && !req.user?.isAdmin) {
-        res.status(403).json({
-          status: 403,
-          error: "Access denied. You can only modify your own records.",
-        });
+        sendError(res, 403, "Access denied. You can only modify your own records.");
         return;
       }
 
       if (record?.status !== "draft") {
-        res.status(403).json({
-          status: 403,
-          error:
-            "Cannot modify record that is under investigation, rejected, or resolved",
-        });
+        sendError(res, 403, "Cannot modify record that is under investigation, rejected, or resolved");
         return;
       }
 
@@ -318,21 +271,15 @@ export const redFlagsController = {
         "UPDATE red_flags SET latitude = $1, longitude = $2 WHERE id = $3";
       await pool.query(updateQuery, [latitude, longitude, id]);
 
-      res.status(200).json({
-        status: 200,
-        data: [
-          {
-            id: parseInt(id),
-            message: "Updated red-flag record's location",
-          },
-        ],
-      });
+      sendSuccess(res, 200, [
+        {
+          id: parseInt(id),
+          message: "Updated red-flag record's location",
+        },
+      ]);
     } catch (error) {
       console.error("Error updating location:", error);
-      res.status(500).json({
-        status: 500,
-        error: "Failed to update location",
-      });
+      sendError(res, 500, "Failed to update location", error);
     }
   },
 
@@ -342,10 +289,7 @@ export const redFlagsController = {
       const { description }: UpdateCommentData = req.body;
 
       if (!id) {
-        res.status(400).json({
-          status: 400,
-          error: "ID parameter is required",
-        });
+        sendError(res, 400, "ID parameter is required");
         return;
       }
 
@@ -355,50 +299,34 @@ export const redFlagsController = {
       ]);
 
       if (checkResults.rows.length === 0) {
-        res.status(404).json({
-          status: 404,
-          error: "Red-flag record not found",
-        });
+        sendError(res, 404, "Red-flag record not found");
         return;
       }
 
       const record = checkResults.rows[0] as any;
 
       if (record?.user_id !== req.user?.id && !req.user?.isAdmin) {
-        res.status(403).json({
-          status: 403,
-          error: "Access denied. You can only modify your own records.",
-        });
+        sendError(res, 403, "Access denied. You can only modify your own records.");
         return;
       }
 
       if (record?.status !== "draft") {
-        res.status(403).json({
-          status: 403,
-          error:
-            "Cannot modify record that is under investigation, rejected, or resolved",
-        });
+        sendError(res, 403, "Cannot modify record that is under investigation, rejected, or resolved");
         return;
       }
 
       const updateQuery = "UPDATE red_flags SET description = $1 WHERE id = $2";
       await pool.query(updateQuery, [description, id]);
 
-      res.status(200).json({
-        status: 200,
-        data: [
-          {
-            id: parseInt(id),
-            message: "Updated red-flag record's comment",
-          },
-        ],
-      });
+      sendSuccess(res, 200, [
+        {
+          id: parseInt(id),
+          message: "Updated red-flag record's comment",
+        },
+      ]);
     } catch (error) {
       console.error("Error updating comment:", error);
-      res.status(500).json({
-        status: 500,
-        error: "Failed to update comment",
-      });
+      sendError(res, 500, "Failed to update comment", error);
     }
   },
 
@@ -407,10 +335,7 @@ export const redFlagsController = {
       const { id } = req.params;
 
       if (!id) {
-        res.status(400).json({
-          status: 400,
-          error: "ID parameter is required",
-        });
+        sendError(res, 400, "ID parameter is required");
         return;
       }
 
@@ -420,50 +345,34 @@ export const redFlagsController = {
       ]);
 
       if (checkResults.rows.length === 0) {
-        res.status(404).json({
-          status: 404,
-          error: "Red-flag record not found",
-        });
+        sendError(res, 404, "Red-flag record not found");
         return;
       }
 
       const record = checkResults.rows[0] as any;
 
       if (record?.user_id !== req.user?.id && !req.user?.isAdmin) {
-        res.status(403).json({
-          status: 403,
-          error: "Access denied. You can only delete your own records.",
-        });
+        sendError(res, 403, "Access denied. You can only delete your own records.");
         return;
       }
 
       if (record?.status !== "draft") {
-        res.status(403).json({
-          status: 403,
-          error:
-            "Cannot delete record that is under investigation, rejected, or resolved",
-        });
+        sendError(res, 403, "Cannot delete record that is under investigation, rejected, or resolved");
         return;
       }
 
       const deleteQuery = "DELETE FROM red_flags WHERE id = $1";
       await pool.query(deleteQuery, [id]);
 
-      res.status(200).json({
-        status: 200,
-        data: [
-          {
-            id: parseInt(id),
-            message: "Red-flag record has been deleted",
-          },
-        ],
-      });
+      sendSuccess(res, 200, [
+        {
+          id: parseInt(id),
+          message: "Red-flag record has been deleted",
+        },
+      ]);
     } catch (error) {
       console.error("Error deleting red flag:", error);
-      res.status(500).json({
-        status: 500,
-        error: "Failed to delete red-flag record",
-      });
+      sendError(res, 500, "Failed to delete red-flag record", error);
     }
   },
 
