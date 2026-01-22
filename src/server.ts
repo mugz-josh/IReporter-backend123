@@ -19,6 +19,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   const allowedOrigins = [
     "http://localhost:3001", // for local dev
     "https://i-reporter-frontend123.vercel.app", // frontend live
+    "https://backend-ireporter.vercel.app", // our deployed backend
+    "https://i-reporter-backend123-mfln.vercel.app", // alternative backend URL
   ];
 
   const origin = req.headers.origin;
