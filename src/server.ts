@@ -120,9 +120,15 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // ---------------------------
-// START SERVER
+// START SERVER (only for local development)
 // ---------------------------
-app.listen(PORT, () => {
-  console.log(`iReporter server is running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV}`);
-});
+// For Vercel deployment, we export the app instead of listening
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`iReporter server is running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV}`);
+  });
+}
+
+// Export the app for Vercel serverless functions
+export default app;
