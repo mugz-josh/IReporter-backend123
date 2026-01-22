@@ -13,34 +13,31 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ---------------------------
-// CORS CONFIGURATION (PRODUCTION SAFE)
+// CORS CONFIGURATION FOR VERCEL SERVERLESS
 // ---------------------------
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // List of allowed origins
-      const allowedOrigins = [
-        "http://localhost:3001", // for local dev
-        "https://i-reporter-frontend123.vercel.app", // frontend live
-      ];
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const allowedOrigins = [
+    "http://localhost:3001", // for local dev
+    "https://i-reporter-frontend123.vercel.app", // frontend live
+  ];
 
-      // Allow requests with no origin (Postman, curl)
-      if (!origin) return callback(null, true);
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin as string) || !origin) {
+    res.header("Access-Control-Allow-Origin", origin || "*");
+  }
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error("CORS policy: This origin is not allowed"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  })
-);
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
-// Handle preflight OPTIONS requests
-app.options("*", cors());
+  // Handle preflight OPTIONS requests
+  if (req.method === "OPTIONS") {
+    res.sendStatus(200);
+    return;
+  }
+
+  next();
+});
 
 // ---------------------------
 // MIDDLEWARE
